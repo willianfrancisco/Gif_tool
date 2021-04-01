@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:share/share.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -18,7 +19,7 @@ class _HomePageState extends State<HomePage> {
   Future<Map> _getGifs() async {
     http.Response response;
 
-    if (_search == null)
+    if (_search == null || _search.isEmpty)
       response = await http.get(
           "https://api.giphy.com/v1/gifs/trending?api_key=BW4NxB7TIyGl5AT7BCCF4IyTOxCCDndX&limit=20&rating=g");
     else
@@ -43,8 +44,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Image.network(
-            "https://developers.giphy.com/static/img/dev-logo-lg.7404c00322a8.gif"),
+        title: Image.network("https://developers.giphy.com/static/img/dev-logo-lg.7404c00322a8.gif"),
         centerTitle: true,
       ),
       body: Column(
@@ -113,12 +113,12 @@ class _HomePageState extends State<HomePage> {
         itemBuilder: (context, index) {
           if (_search == null || index < snapshot.data["data"].length)
             return GestureDetector(
-              child: Image.network(
-                snapshot.data["data"][index]["images"]["fixed_height"]["url"],
-                height: 300.0,
-                fit: BoxFit.cover,
-              ),
-              onTap: () {
+              child: FadeInImage.memoryNetwork(placeholder: kTransparentImage, 
+              image: snapshot.data["data"][index]["images"]["fixed_height"]["url"],
+              height: 300.0,
+              fit: BoxFit.cover,
+              ), 
+               onTap: () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
