@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:gif_tool/ui/gif_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:share/share.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -16,9 +19,11 @@ class _HomePageState extends State<HomePage> {
     http.Response response;
 
     if (_search == null)
-      response = await http.get("https://api.giphy.com/v1/gifs/trending?api_key=BW4NxB7TIyGl5AT7BCCF4IyTOxCCDndX&limit=20&rating=g");
+      response = await http.get(
+          "https://api.giphy.com/v1/gifs/trending?api_key=BW4NxB7TIyGl5AT7BCCF4IyTOxCCDndX&limit=20&rating=g");
     else
-      response = await http.get("https://api.giphy.com/v1/gifs/search?api_key=BW4NxB7TIyGl5AT7BCCF4IyTOxCCDndX&q=$_search&limit=19&offset=$_offset&rating=g&lang=en");
+      response = await http.get(
+          "https://api.giphy.com/v1/gifs/search?api_key=BW4NxB7TIyGl5AT7BCCF4IyTOxCCDndX&q=$_search&limit=19&offset=$_offset&rating=g&lang=en");
 
     return json.decode(response.body);
   }
@@ -53,7 +58,7 @@ class _HomePageState extends State<HomePage> {
                   border: OutlineInputBorder()),
               style: TextStyle(color: Colors.white, fontSize: 18.0),
               textAlign: TextAlign.center,
-              onSubmitted: (text){
+              onSubmitted: (text) {
                 setState(() {
                   _search = text;
                 });
@@ -77,8 +82,10 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 default:
-                  if (snapshot.hasError) return Container();
-                  else return _createGifTable(context, snapshot);
+                  if (snapshot.hasError)
+                    return Container();
+                  else
+                    return _createGifTable(context, snapshot);
               }
             },
           ))
@@ -87,9 +94,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  int _getCount(List data){
-    if(_search == null) return data.length;
-    else return data.length + 1;
+  int _getCount(List data) {
+    if (_search == null)
+      return data.length;
+    else
+      return data.length + 1;
   }
 
   Widget _createGifTable(BuildContext context, AsyncSnapshot snapshot) {
@@ -102,29 +111,47 @@ class _HomePageState extends State<HomePage> {
         ),
         itemCount: _getCount(snapshot.data["data"]),
         itemBuilder: (context, index) {
-          if(_search == null || index < snapshot.data["data"].length)
+          if (_search == null || index < snapshot.data["data"].length)
             return GestureDetector(
-            child: Image.network(snapshot.data["data"][index]["images"]["fixed_height"]["url"],
-            height: 300.0,
-            fit: BoxFit.cover,),
-          );
+              child: Image.network(
+                snapshot.data["data"][index]["images"]["fixed_height"]["url"],
+                height: 300.0,
+                fit: BoxFit.cover,
+              ),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => GifPage(snapshot.data["data"][index])));
+              },
+              onLongPress: () {
+                Share.share(snapshot.data["data"][index]["images"]["fixed_height"]["url"]);
+              },
+            );
           else
             return Container(
               child: GestureDetector(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.add, color: Colors.white,size: 70.0,),
-                    Text("Carregar Mais...", style: TextStyle(color: Colors.white, fontSize: 22.0),),
+                    Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 70.0,
+                    ),
+                    Text(
+                      "Carregar Mais...",
+                      style: TextStyle(color: Colors.white, fontSize: 22.0),
+                    ),
                   ],
                 ),
-                onTap: (){
+                onTap: () {
                   setState(() {
-                    _offset +=  19;
+                    _offset += 19;
                   });
                 },
               ),
-              );
+            );
         });
   }
 }
